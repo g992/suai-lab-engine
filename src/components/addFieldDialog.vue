@@ -1,21 +1,40 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const isDialogVisible = ref(false);
-defineProps<{ isOutput: boolean }>();
+const props = defineProps<{ isOutput: boolean }>();
 
 const symbol = ref('');
 const description = ref('');
+const postfix = ref('');
 const formula = ref('');
+
 const emit = defineEmits<{
-  (e: 'add', symbol: string, description: string, formula?: string): void;
+  (
+    e: 'add',
+    symbol: string,
+    description: string,
+    postfix: string,
+    formula?: string
+  ): void;
 }>();
 const emitAdd = () => {
-  emit('add', symbol.value, description.value, formula.value);
+  emit('add', symbol.value, description.value, postfix.value, formula.value);
   isDialogVisible.value = false;
 };
 watch(symbol, () => {
   symbol.value = symbol.value.replace(/\s/gm, '');
+});
+
+const isAddDisable = computed(() => {
+  if (!props.isOutput && symbol.value.length == 0) return true;
+  else if (
+    props.isOutput &&
+    symbol.value.length == 0 &&
+    formula.value.length == 0
+  )
+    return true;
+  return false;
 });
 </script>
 
@@ -32,6 +51,7 @@ watch(symbol, () => {
       <q-card-section class="q-pt-none">
         <q-input label="Имя переменной" v-model="symbol" />
         <q-input class="q-mt-md" label="Описание" v-model="description" />
+        <q-input class="q-mt-md" label="Величина" v-model="postfix" />
         <q-input
           class="q-mt-md"
           label="Формула"
@@ -46,7 +66,7 @@ watch(symbol, () => {
           flat
           label="Добавить"
           color="primary"
-          :disable="symbol.length == 0 || !isOutput || formula.length == 0"
+          :disable="isAddDisable"
           @click="emitAdd"
         />
       </q-card-actions>

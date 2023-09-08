@@ -54,5 +54,6 @@ export const useLabsStore = defineStore('counter', () => {
     createLab,
     selectedLab,
     selectLabByNameAndDesk,
+    saveLabs,
   };
 });
