@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
 import { Lab } from 'stores/types';
 import { useQuasar } from 'quasar';
+import { crc16 } from 'crc';
 
 export const useLabsStore = defineStore('counter', () => {
   const $q = useQuasar();
@@ -28,6 +29,11 @@ export const useLabsStore = defineStore('counter', () => {
   });
 
   const saveLabs = () => {
+    if (selectedLab.value) {
+      selectedLab.value.checksum = crc16(
+        JSON.stringify(selectedLab.value.lab)
+      ).toString(16);
+    }
     $q.localStorage.set('labs', labs.value);
   };
 
